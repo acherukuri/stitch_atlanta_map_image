@@ -4,11 +4,59 @@
     </head>
     <body>
         <h1>Download Atlanta Maps</h1>
-        <form method="get" action="/download_atlanta_map">
+        <form>
             <label for="map_manifest_url"></label>Map Manifest URL<br>
-            <input type="text" id="map_manifest_url" size="90" name="map_manifest_url" 
-                placeholder="https://digitalgallery.emory.edu/luna/servlet/iiif/m/EMORYUL~3~3~2550~100334/manifest"><br><br>
-            <input type="submit" value="Download">
+            <input type="url" id="map_manifest_url" size="90" name="map_manifest_url"
+                placeholder="https://digitalgallery.emory.edu/luna/servlet/iiif/m/EMORYUL~3~3~2550~100334/manifest"
+                pattern="https:\/\/digitalgallery.emory.edu\/luna\/servlet\/iiif\/m\/.*\/manifest"  required><br><br>
+            <input type="submit" id="download_atlanta_map_button" value="Download">
         </form>
     </body>
+    <script>
+        function downloadAtlantaMap(map_manifest_url) {
+            const url = `/download_atlanta_map?map_manifest_url=${map_manifest_url}`
+            fetch(url)
+                .then((result) => {
+                    if (!result.ok) {
+                        console.log(result)
+                        throw Error(result.statusText);
+                    }
+
+                    return result.blob()
+                })
+                .then((blob) => {
+                    if (blob != null) {
+                        var url = URL.createObjectURL(blob);
+                        var a = document.createElement('a');
+                        a.href = url;
+                        a.download = "atlanta_map.jpg";
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                    }
+                }).catch((error) => {
+                    alert("An error occurred while downloading the image. Please try again later.")
+                }).finally(() => {
+                    download_button.disabled = false;
+                    download_button.value = "Download"
+                })
+        }
+
+        const download_button = document.getElementById("download_atlanta_map_button")
+        const map_manifest_url_input = document.getElementById("map_manifest_url")
+        map_manifest_url_input.addEventListener("change", () => {
+            map_manifest_url_input.setCustomValidity("")
+        })
+
+        download_button.addEventListener("click", () => {
+            if(map_manifest_url_input.checkValidity()) {
+                download_button.disabled = true;
+                download_button.value = "Downloading"
+                downloadAtlantaMap(map_manifest_url_input.value)
+            } else {
+                map_manifest_url_input.setCustomValidity("Please provide an IIIF manifest URL from https://digitalgallery.emory.edu")
+            }
+        })
+
+    </script>
 </html>
