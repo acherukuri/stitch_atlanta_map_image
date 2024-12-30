@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask, send_file, request, render_template
 from generate_atlanta_map import StitchedAtlantaMapGenerator
