@@ -1,9 +1,12 @@
+import logging
 import time
 import shutil
 import os
 import requests
 from PIL import Image
 from io import BytesIO
+
+log = logging.getLogger('app.stitched_atlanta_map_generator')
 
 class StitchedAtlantaMapGenerator:
     def __init__(self, map_manifest_url):
@@ -36,7 +39,7 @@ class StitchedAtlantaMapGenerator:
                 region = f"{x},{y},{width},{height}"
                 tile_url = f"http://www.digitalgallery.emory.edu/luna/servlet/iiif/{self.__image_resource_name}/{region}/full/0/default.jpg"
                 
-                print(f"Downloading {tile_url}")
+                log.info(f"Downloading {tile_url}")
                 response = requests.get(tile_url)
                 tile_path = f"{self.__tiles_directory_name}/tile_{x}_{y}.jpg"
                 with open(tile_path, "wb") as tile_file:
@@ -54,7 +57,7 @@ class StitchedAtlantaMapGenerator:
 
             # Save the final image
             final_image.save(self.__final_image_name)
-            print(f"Image stitching complete! Saved as {self.__final_image_name}")
+            log.info(f"Image stitching complete! Saved as {self.__final_image_name}")
         finally:
             shutil.rmtree(self.__tiles_directory_name)
 

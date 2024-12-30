@@ -1,4 +1,4 @@
-import logging
+import logging, sys
 import os
 from flask import Flask, send_file, request, render_template
 from generate_atlanta_map import StitchedAtlantaMapGenerator
@@ -21,11 +21,14 @@ def download_atlanta_map_image():
         os.remove(image_file_name)
         return file
     except Exception as e:
-        println(e)
+        app.logger.error(e)
         return "An error occurred while downloading the image. Please try again later.", 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    handler = logging.StreamHandler(sys.stdout)
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.DEBUG)
+    app.run()
 
 if __name__ != '__main__':
     gunicorn_logger = logging.getLogger('gunicorn.error')
